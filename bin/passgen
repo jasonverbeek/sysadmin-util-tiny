@@ -1,0 +1,51 @@
+#!/usr/bin/env python3
+
+from optparse import OptionParser
+from random import choice
+from sys import stdout
+
+parser = OptionParser()
+parser.add_option("-s", "--no-special",
+                  action="store_false", dest="special", default=True,
+                  help="Exclude special characters")
+parser.add_option("-a", "--no-alphabetical",
+                  action="store_false", dest="alphabetical", default=True,
+                  help="Exclude alphabetical characters")
+parser.add_option("-n", "--no-numeric",
+                  action="store_false", dest="numeric", default=True,
+                  help="Exclude numeric characters")
+
+(options, args) = parser.parse_args()
+
+if len(args) != 1:
+    print("Usage: passgen [options] <length> [options]")
+    exit(1)
+
+length=8
+
+try:
+    length=int(args[0])
+except:
+    print(f"Warning: Argument <length> is not a number. using length of {length} instead.")
+
+
+special = "~`!@#$%^&*()_+{}|:\"<>?[]\\7;',./"
+numeric = "1234567890"
+alphabetical = "abcdefghijklmnopqrstuvwxyz"
+
+available_characters = ""
+
+if not any([options.special, options.numeric, options.alphabetical]):
+    print("Can't create password without usable characters")
+    exit(1)
+
+if options.special:
+    available_characters += special
+if options.numeric:
+    available_characters += numeric
+if options.alphabetical:
+    available_characters += (alphabetical+alphabetical.upper())
+
+for _ in range(length):
+    stdout.write(choice(available_characters))
+stdout.write("\r\n")
