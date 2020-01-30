@@ -9,19 +9,13 @@ get current gateway(s)
 
 `$ gateway`
 
-output
-
 ```
 wlo1 192.168.2.254
 eno1 10.0.10.254
 ```
 get current gateway for a specific interface
 
-`$ gateway -i eno1`
-
-`$ gateway --interface eno1`
-
-output
+`$ gateway [-i/--interface] eno1`
 ```
 eno1 10.0.10.254
 ```
