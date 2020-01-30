@@ -1,5 +1,5 @@
 # sysadmin-util-tiny
-scripts that might be usefull for different ranges of work on linux machines.
+scripts that might be usefull for different ranges of work on \*nix machines.
 
 **only requires python3**
 
