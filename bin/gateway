@@ -5,30 +5,22 @@ import subprocess
 
 class Route(object):
     def __init__(self, routeline):
-        (dest, gateway, mask, _, _, _, _, iface) = [v for v in routeline.split(" ") if v]
-        self.dest = dest
-        self.gateway = gateway
-        self.mask = mask
-        self.interface = iface
+        #route -n -> Destination, Gateway, Genmask, Flags, Metric, Ref, Use, Iface
+        (self.dest, self.gateway, self.mask, _, _, _, _, self.interface) = [v for v in routeline.split(" ") if v]
 
     @staticmethod
-    def mapper(routeline):
-        return Route(routeline)
+    def map(routelines):
+        routes = []
+        for line in routelines:
+            route = Route(line)
+            if route.dest == "0.0.0.0" and route.gateway != "0.0.0.0":
+                routes.append(route)
+        return routes
 
-    @property
-    def isGateway(self):
-        return self.dest == "0.0.0.0" and self.gateway != "0.0.0.0"
-
-def dedupe(lst):
-    seen = []
-    for i in lst:
-        if i not in seen:
-            seen.append(i)
-    return seen
 
 routedata = subprocess.getoutput("route -n").split('\n')[2:]
-routes = [r for r in map(Route.mapper, routedata) if r.isGateway]
-interfaces = [r.interface for r in routes]
+routes = Route.map(routedata)
+interfaces = [route.interface for route in routes]
 
 parser = OptionParser()
 parser.add_option("-i", "--iface",
@@ -36,13 +28,12 @@ parser.add_option("-i", "--iface",
                   choices=interfaces,
                   help=f"Show for single interface")
 
-
-(options, args) = parser.parse_args()
-
+(options, _) = parser.parse_args()
 iface = options.iface
-if iface:
-    for x in filter(lambda m: m.interface == iface, routes):
-        print(x.gateway)
-else:
-    for x in routes:
-        print(x.interface, x.gateway)
+
+filterfn = \
+        (lambda test: test.interface == iface) \
+        if iface else None
+
+for route in filter(filterfn, routes):
+    print(route.interface, route.gateway)
