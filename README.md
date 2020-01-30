@@ -1,9 +1,10 @@
 # sysadmin-util-tiny
-scripts that might be usefull for different ranges of work on \*nix machines.
+scripts that might be usefull for different ranges of work on most linux distributions.
+## requirements
+- python3
+- net-tools (for `gateway`)
 
-**only requires python3**
-
-## scripts
+## docs
 ### gateway _\[options\]_
 get current gateway(s)
 
