@@ -1,0 +1,48 @@
+#!/usr/bin/env python3
+
+from optparse import OptionParser
+import subprocess
+
+class Route(object):
+    def __init__(self, routeline):
+        (dest, gateway, mask, _, _, _, _, iface) = [v for v in routeline.split(" ") if v]
+        self.dest = dest
+        self.gateway = gateway
+        self.mask = mask
+        self.interface = iface
+
+    @staticmethod
+    def mapper(routeline):
+        return Route(routeline)
+
+    @property
+    def isGateway(self):
+        return self.dest == "0.0.0.0" and self.gateway != "0.0.0.0"
+
+def dedupe(lst):
+    seen = []
+    for i in lst:
+        if i not in seen:
+            seen.append(i)
+    return seen
+
+routedata = subprocess.getoutput("route -n").split('\n')[2:]
+routes = [r for r in map(Route.mapper, routedata) if r.isGateway]
+interfaces = [r.interface for r in routes]
+
+parser = OptionParser()
+parser.add_option("-i", "--iface",
+                  dest="iface",
+                  choices=interfaces,
+                  help=f"Show for single interface")
+
+
+(options, args) = parser.parse_args()
+
+iface = options.iface
+if iface:
+    for x in filter(lambda m: m.interface == iface, routes):
+        print(x.gateway)
+else:
+    for x in routes:
+        print(x.interface, x.gateway)
